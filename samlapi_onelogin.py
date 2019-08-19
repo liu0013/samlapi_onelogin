@@ -10,6 +10,7 @@ import base64
 import logging
 import xml.etree.ElementTree as ET
 import re
+import gauth
 from bs4 import BeautifulSoup
 from os.path import expanduser
 from urlparse import urlparse, urlunparse
@@ -51,9 +52,9 @@ if not email:
     email = raw_input()
 else:
     print "Using: %s" % email
-password = getpass.getpass()
-print "OTP Code (MFA): ",
-otp_code = raw_input()
+password = gauth.get_passwd()
+print "OTP Code (MFA): "
+otp_code = gauth.get_token()
 print ''
 
 # Initiate session handler
@@ -138,7 +139,10 @@ if len(awsroles) > 1:
         print ' [', i, ']: ', awsrole.split(',')[0]
         i += 1
     print "Selection: ",
-    selectedroleindex = raw_input()
+    if Config.has_option('Settings', 'AccountIndex') and Config.get('Settings', 'AccountIndex').isdigit():
+        selectedroleindex = int(Config.get('Settings', 'AccountIndex'))
+    else:
+        selectedroleindex = raw_input()
 
     # Basic sanity check of input
     if int(selectedroleindex) > (len(awsroles) - 1):
